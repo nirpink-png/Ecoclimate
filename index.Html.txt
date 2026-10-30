@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>EcoClimate Studio</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              500: '#22c55e',
+              600: '#16a34a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    /* Custom Glassmorphism styles */
+    .glass {
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .dark .glass {
+      background: rgba(18, 24, 38, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .highlight-card {
+      animation: pulseGlow 1.5s ease-in-out infinite alternate;
+    }
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 0 0px rgba(34, 197, 94, 0.4); }
+      100% { box-shadow: 0 0 0 12px rgba(34, 197, 94, 0.0); }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-300 font-sans pb-24">
+
+  <!-- Header / Navigation Bar -->
+  <header class="sticky top-0 z-40 w-full glass border-b border-slate-200 dark:border-slate-800 px-4 py-3">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <i class="fa-solid font-bold fa-leaf text-green-500 text-xl"></i>
+        <span class="font-bold text-lg tracking-tight">EcoClimate</span>
+      </div>
+      <div class="flex items-center space-x-3">
+        <!-- Language Switcher -->
+        <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-slate-200/60 dark:bg-slate-800/80 text-xs font-semibold px-2 py-1.5 rounded-lg border-none focus:ring-2 focus:ring-green-500 outline-none">
+          <option value="en">English (EN)</option>
+          <option value="es">Español (ES)</option>
+          <option value="fr">Français (FR)</option>
+          <option value="hi">हिन्दी (HI)</option>
+        </select>
+        <!-- Dark Mode Toggle -->
+        <button onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-200/60 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700 transition">
+          <i id="themeIcon" class="fa-solid fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-md mx-auto px-4 pt-4 space-y-5">
+
+    <!-- Location & Primary Weather Overview -->
+    <section class="glass rounded-3xl p-6 text-center shadow-lg relative overflow-hidden">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-xs font-semibold uppercase tracking-wider text-green-600 dark:text-green-400" id="txtLiveStatus">Live Status</span>
+        <button onclick="toggleUnit()" class="text-xs font-bold bg-slate-200/70 dark:bg-slate-800/80 px-2.5 py-1 rounded-full text-slate-700 dark:text-slate-300">
+          <span id="unitBtn">°C → °F</span>
+        </button>
+      </div>
+      <h1 class="text-2xl font-extrabold" id="locationTitle">San Francisco, CA</h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400" id="weatherDesc">Partly Cloudy</p>
+      
+      <div class="my-4 flex items-center justify-center space-x-3">
+        <i id="weatherMainIcon" class="fa-solid fa-cloud-sun text-5xl text-amber-400"></i>
+        <span class="text-6xl font-light tracking-tighter" id="tempDisplay">22°</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/50 dark:border-slate-800/50 text-xs text-slate-600 dark:text-slate-400">
+        <div><i class="fa-solid fa-droplet text-blue-500 mr-1"></i><span id="txtHumidity">Humidity</span>: <strong id="valHumidity">65%</strong></div>
+        <div><i class="fa-solid fa-wind text-teal-500 mr-1"></i><span id="txtWind">Wind</span>: <strong id="valWind">12 km/h</strong></div>
+      </div>
+    </section>
+
+    <!-- Air Quality Index Widget -->
+    <section id="aqiSection" class="glass rounded-3xl p-5 shadow-lg transition-all duration-300">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="font-bold text-sm tracking-wide text-slate-700 dark:text-slate-200" id="txtAqiTitle">AIR QUALITY INDEX (AQI)</h2>
+        <span id="aqiBadge" class="text-xs font-bold px-3 py-1 rounded-full text-white bg-green-500">Good</span>
+      </div>
+
+      <div class="flex items-baseline space-x-2 my-2">
+        <span class="text-4xl font-extrabold" id="aqiValue">42</span>
+        <span class="text-xs text-slate-500 dark:text-slate-400" id="txtAqiScale">/ 500 US AQI</span>
+      </div>
+
+      <!-- AQI Progress Bar -->
+      <div class="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden my-3">
+        <div id="aqiBar" class="bg-green-500 h-2.5 rounded-full transition-all duration-500" style="width: 8.4%"></div>
+      </div>
+
+      <!-- Health Recommendation Callout -->
+      <p id="aqiHealthAdvice" class="text-xs text-slate-600 dark:text-slate-300 bg-slate-100/50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-200/30 dark:border-slate-800/30 mb-4">
+        Air quality is satisfactory and poses little or no risk. Enjoy outdoor activities!
+      </p>
+
+      <!-- Sub-Metrics Breakdown -->
+      <div class="grid grid-cols-4 gap-2 text-center text-xs">
+        <div class="bg-slate-100/80 dark:bg-slate-900/60 p-2 rounded-xl">
+          <p class="text-slate-400 font-medium">PM2.5</p>
+          <p class="font-bold mt-0.5" id="valPm25">10.2</p>
+        </div>
+        <div class="bg-slate-100/80 dark:bg-slate-900/60 p-2 rounded-xl">
+          <p class="text-slate-400 font-medium">PM10</p>
+          <p class="font-bold mt-0.5" id="valPm10">18.5</p>
+        </div>
+        <div class="bg-slate-100/80 dark:bg-slate-900/60 p-2 rounded-xl">
+          <p class="text-slate-400 font-medium">CO</p>
+          <p class="font-bold mt-0.5" id="valCo">0.4</p>
+        </div>
+        <div class="bg-slate-100/80 dark:bg-slate-900/60 p-2 rounded-xl">
+          <p class="text-slate-400 font-medium">NO2</p>
+          <p class="font-bold mt-0.5" id="valNo2">12.1</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10-Day Climate Forecast Section -->
+    <section id="forecastSection" class="glass rounded-3xl p-5 shadow-lg transition-all duration-300">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="font-bold text-sm tracking-wide text-slate-700 dark:text-slate-200" id="txtForecastTitle">10-DAY FORECAST</h2>
+        <span class="text-xs text-slate-400" id="txtSwipeHint">Swipe horizontal →</span>
+      </div>
+
+      <!-- Horizontal Scrollable Container -->
+      <div id="forecastContainer" class="flex space-x-3 overflow-x-auto hide-scrollbar pb-2">
+        <!-- Rendered via JavaScript -->
+      </div>
+    </section>
+
+    <!-- Live Voice Feedback Display -->
+    <div id="voiceFeedbackContainer" class="hidden glass rounded-2xl p-3 border-l-4 border-green-500 text-xs flex items-center space-x-3">
+      <i class="fa-solid fa-waveform text-green-500 animate-pulse text-base"></i>
+      <div>
+        <p class="text-slate-400 font-medium" id="txtListeningLabel">Voice Assistant Active</p>
+        <p class="font-semibold italic text-slate-800 dark:text-slate-200" id="voiceTranscript">Listening for commands...</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Floating Microphone Action Button -->
+  <div class="fixed bottom-6 left-0 right-0 z-50 flex justify-center items-center pointer-events-none">
+    <button id="micBtn" onclick="toggleVoiceControl()" class="pointer-events-auto bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-xl shadow-green-500/30 flex items-center justify-center transition-all duration-300 transform active:scale-90">
+      <i id="micIcon" class="fa-solid fa-microphone text-2xl"></i>
+    </button>
+  </div>
+
+  <!-- APPLICATION LOGIC & I18N DICTIONARY -->
+  <script>
+    // -------------------------------------------------------------
+    // Global State & Data
+    // -------------------------------------------------------------
+    let currentLang = localStorage.getItem('ecoclimate_lang') || 'en';
+    let currentUnit = 'C'; // 'C' or 'F'
+    let isListening = false;
+    let recognition = null;
+
+    const weatherMockData = {
+      city: "San Francisco, CA",
+      tempC: 22,
+      condition: "partly_cloudy",
+      humidity: 65,
+      windSpeed: "12 km/h",
+      aqi: 42,
+      pm25: 10.2,
+      pm10: 18.5,
+      co: 0.4,
+      no2: 12.1,
+      forecast: [
+        { dayKey: "today", maxC: 22, minC: 14, pop: 10, humidity: 65, cond: "partly_cloudy" },
+        { dayKey: "day1", maxC: 24, minC: 15, pop: 0, humidity: 55, cond: "sunny" },
+        { dayKey: "day2", maxC: 21, minC: 13, pop: 40, humidity: 70, cond: "rainy" },
+        { dayKey: "day3", maxC: 19, minC: 12, pop: 70, humidity: 80, cond: "stormy" },
+        { dayKey: "day4", maxC: 20, minC: 13, pop: 20, humidity: 62, cond: "cloudy" },
+        { dayKey: "day5", maxC: 23, minC: 15, pop: 0, humidity: 58, cond: "sunny" },
+        { dayKey: "day6", maxC: 25, minC: 16, pop: 5, humidity: 50, cond: "sunny" },
+        { dayKey: "day7", maxC: 22, minC: 14, pop: 15, humidity: 64, cond: "partly_cloudy" },
+        { dayKey: "day8", maxC: 21, minC: 13, pop: 30, humidity: 68, cond: "cloudy" },
+        { dayKey: "day9", maxC: 20, minC: 12, pop: 50, humidity: 75, cond: "rainy" }
+      ]
+    };
+
+    // Translations Dictionary
+    const i18n = {
+      en: {
+        liveStatus: "Live Status",
+        humidity: "Humidity",
+        wind: "Wind",
+        aqiTitle: "AIR QUALITY INDEX (AQI)",
+        aqiScale: "/ 500 US AQI",
+        forecastTitle: "10-DAY FORECAST",
+        swipeHint: "Swipe horizontal →",
+        listeningLabel: "Voice Assistant Active",
+        listeningMsg: "Listening for commands...",
+        good: "Good",
+        moderate: "Moderate",
+        unhealthy: "Unhealthy",
+        hazardous: "Hazardous",
+        adviceGood: "Air quality is satisfactory and poses little or no risk. Enjoy outdoor activities!",
+        adviceModerate: "Air quality is acceptable. Sensitive individuals should limit prolonged outdoor exertion.",
+        adviceUnhealthy: "Unhealthy air quality. Everyone may begin to experience health effects; wear masks outside.",
+        adviceHazardous: "Health warning of emergency conditions. Avoid all outdoor physical activities.",
+        partly_cloudy: "Partly Cloudy",
+        sunny: "Sunny",
+        cloudy: "Cloudy",
+        rainy: "Rainy",
+        stormy: "Stormy",
+        days: ["Today", "Tomorrow", "Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed", "Thu"]
+      },
+      es: {
+        liveStatus: "Estado en Vivo",
+        humidity: "Humedad",
+        wind: "Viento",
+        aqiTitle: "ÍNDICE DE CALIDAD DEL AIRE (AQI)",
+        aqiScale: "/ 500 AQI EE.UU.",
+        forecastTitle: "PRONÓSTICO DE 10 DÍAS",
+        swipeHint: "Deslizar horizontal →",
+        listeningLabel: "Asistente de Voz Activo",
+        listeningMsg: "Escuchando comandos...",
+        good: "Bueno",
+        moderate: "Moderado",
+        unhealthy: "No Saludable",
+        hazardous: "Peligroso",
+        adviceGood: "La calidad del aire es satisfactoria y presenta poco riesgo. ¡Disfrute al aire libre!",
+        adviceModerate: "Calidad del aire aceptable. Personas sensibles deben limitar esfuerzos prolongados.",
+        adviceUnhealthy: "Calidad del aire no saludable. Se recomienda usar mascarilla al salir.",
+        adviceHazardous: "Advertencia de salud de emergencia. Evite actividades al aire libre.",
+        partly_cloudy: "Parcialmente Nublado",
+        sunny: "Soleado",
+        cloudy: "Nublado",
+        rainy: "Lluvioso",
+        stormy: "Tormentoso",
+        days: ["Hoy", "Mañana", "Jue", "Vie", "Sáb", "Dom", "Lun", "Mar", "Mié", "Jue"]
+      },
+      fr: {
+        liveStatus: "En Direct",
+        humidity: "Humidité",
+        wind: "Vent",
+        aqiTitle: "INDICE DE QUALITÉ DE L'AIR (AQI)",
+        aqiScale: "/ 500 US AQI",
+        forecastTitle: "PRÉVISIONS SUR 10 JOURS",
+        swipeHint: "Balayer horizontalement →",
+        listeningLabel: "Assistant Vocal Actif",
+        listeningMsg: "Écoute de vos commandes...",
+        good: "Bon",
+        moderate: "Modéré",
+        unhealthy: "Malsain",
+        hazardous: "Dangereux",
+        adviceGood: "La qualité de l'air est satisfaisante. Profitez de vos activités en plein air !",
+        adviceModerate: "Qualité de l'air acceptable. Les personnes sensibles doivent limiter les efforts.",
+        adviceUnhealthy: "Qualité de l'air malsaine. Port d'un masque recommandé à l'extérieur.",
+        adviceHazardous: "Alerte de santé d'urgence. Évitez toute activité physique en plein air.",
+        partly_cloudy: "Partiellement Nuageux",
+        sunny: "Ensoleillé",
+        cloudy: "Nuageux",
+        rainy: "Pluvieux",
+        stormy: "Orageux",
+        days: ["Aujourd'hui", "Demain", "Jeu", "Ven", "Sam", "Dim", "Lun", "Mar", "Mer", "Jeu"]
+      },
+      hi: {
+        liveStatus: "लाइव स्थिति",
+        humidity: "आर्द्रता",
+        wind: "हवा",
+        aqiTitle: "वायु गुणवत्ता सूचकांक (AQI)",
+        aqiScale: "/ 500 US AQI",
+        forecastTitle: "10-दिवसीय पूर्वानुमान",
+        swipeHint: "स्वाइप करें →",
+        listeningLabel: "वॉयस असिस्टेंट सक्रिय",
+        listeningMsg: "आदेश सुने जा रहे हैं...",
+        good: "अच्छा",
+        moderate: "मध्यम",
+        unhealthy: "अस्वास्थ्यकर",
+        hazardous: "खतरनाक",
+        adviceGood: "वायु गुणवत्ता संतोषजनक है। बाहर की गतिविधियों का आनंद लें!",
+        adviceModerate: "वायु गुणवत्ता स्वीकार्य है। संवेदनशील व्यक्ति लंबे समय तक बाहर रहने से बचें।",
+        adviceUnhealthy: "अस्वास्थ्यकर हवा। बाहर जाते समय मास्क पहनने की सलाह दी जाती है।",
+        adviceHazardous: "आपतकालीन स्वास्थ्य चेतावनी। बाहर की सभी शारीरिक गतिविधियों से बचें।",
+        partly_cloudy: "आंशिक रूप से बादल",
+        sunny: "धूप",
+        cloudy: "बादल",
+        rainy: "बारिश",
+        stormy: "तूफानी",
+        days: ["आज", "कल", "गुरु", "शुक्र", "शनि", "रवि", "सोम", "मंगल", "बुध", "गुरु"]
+      }
+    };
+
+    // -------------------------------------------------------------
+    // Core Functions & UI Rendering
+    // -------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('langSelect').value = currentLang;
+      initSpeechRecognition();
+      renderApp();
+    });
+
+    function renderApp() {
+      const lang = i18n[currentLang];
+
+      // Update Header & General Static Labels
+      document.getElementById('txtLiveStatus').innerText = lang.liveStatus;
+      document.getElementById('txtHumidity').innerText = lang.humidity;
+      document.getElementById('txtWind').innerText = lang.wind;
+      document.getElementById('txtAqiTitle').innerText = lang.aqiTitle;
+      document.getElementById('txtAqiScale').innerText = lang.aqiScale;
+      document.getElementById('txtForecastTitle').innerText = lang.forecastTitle;
+      document.getElementById('txtSwipeHint').innerText = lang.swipeHint;
+      document.getElementById('txtListeningLabel').innerText = lang.listeningLabel;
+
+      // Update Current Weather
+      document.getElementById('locationTitle').innerText = weatherMockData.city;
+      document.getElementById('weatherDesc').innerText = lang[weatherMockData.condition];
+      
+      const currentTemp = currentUnit === 'C' ? weatherMockData.tempC : Math.round((weatherMockData.tempC * 9/5) + 32);
+      document.getElementById('tempDisplay').innerText = `${currentTemp}°`;
+      document.getElementById('unitBtn').innerText = currentUnit === 'C' ? '°C → °F' : '°F → °C';
+
+      document.getElementById('valHumidity').innerText = `${weatherMockData.humidity}%`;
+      document.getElementById('valWind').innerText = weatherMockData.windSpeed;
+
+      // Render AQI & Recommendation
+      renderAQISection(weatherMockData.aqi, lang);
+
+      // Render 10-Day Forecast Cards
+      renderForecastCards(lang);
+    }
+
+    function renderAQISection(aqi, lang) {
+      const badge = document.getElementById('aqiBadge');
+      const bar = document.getElementById('aqiBar');
+      const advice = document.getElementById('aqiHealthAdvice');
+
+      document.getElementById('aqiValue').innerText = aqi;
+      const pct = Math.min(100, (aqi / 300) * 100);
+      bar.style.width = `${pct}%`;
+
+      if (aqi <= 50) {
+        badge.innerText = lang.good;
+        badge.className = "text-xs font-bold px-3 py-1 rounded-full text-white bg-green-500";
+        bar.className = "bg-green-500 h-2.5 rounded-full transition-all duration-500";
+        advice.innerText = lang.adviceGood;
+      } else if (aqi <= 100) {
+        badge.innerText = lang.moderate;
+        badge.className = "text-xs font-bold px-3 py-1 rounded-full text-slate-900 bg-amber-400";
+        bar.className = "bg-amber-400 h-2.5 rounded-full transition-all duration-500";
+        advice.innerText = lang.adviceModerate;
+      } else if (aqi <= 200) {
+        badge.innerText = lang.unhealthy;
+        badge.className = "text-xs font-bold px-3 py-1 rounded-full text-white bg-orange-500";
+        bar.className = "bg-orange-500 h-2.5 rounded-full transition-all duration-500";
+        advice.innerText = lang.adviceUnhealthy;
+      } else {
+        badge.innerText = lang.hazardous;
+        badge.className = "text-xs font-bold px-3 py-1 rounded-full text-white bg-purple-600";
+        bar.className = "bg-purple-600 h-2.5 rounded-full transition-all duration-500";
+        advice.innerText = lang.adviceHazardous;
+      }
+    }
+
+    function renderForecastCards(lang) {
+      const container = document.getElementById('forecastContainer');
+      container.innerHTML = '';
+
+      weatherMockData.forecast.forEach((item, index) => {
+        const dayLabel = lang.days[index] || `Day ${index + 1}`;
+        const maxTemp = currentUnit === 'C' ? item.maxC : Math.round((item.maxC * 9/5) + 32);
+        const minTemp = currentUnit === 'C' ? item.minC : Math.round((item.minC * 9/5) + 32);
+
+        let iconClass = "fa-sun text-amber-400";
+        if (item.cond === "partly_cloudy") iconClass = "fa-cloud-sun text-amber-400";
+        if (item.cond === "cloudy") iconClass = "fa-cloud text-slate-400";
+        if (item.cond === "rainy") iconClass = "fa-cloud-rain text-blue-400";
+        if (item.cond === "stormy") iconClass = "fa-cloud-bolt text-indigo-400";
+
+        const card = document.createElement('div');
+        card.className = "flex-none w-28 glass p-3.5 rounded-2xl text-center space-y-2 flex flex-col justify-between";
+        card.innerHTML = `
+          <p class="text-xs font-bold text-slate-700 dark:text-slate-200">${dayLabel}</p>
+          <div class="my-1 text-2xl">
+            <i class="fa-solid ${iconClass}"></i>
+          </div>
+          <p class="text-xs font-semibold">${maxTemp}° <span class="text-slate-400 font-normal">${minTemp}°</span></p>
+          <div class="text-[10px] text-blue-500 font-medium">
+            <i class="fa-solid fa-umbrella text-[9px] mr-0.5"></i>${item.pop}%
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // -------------------------------------------------------------
+    // Event Handlers & Preference Persistence
+    // -------------------------------------------------------------
+    function changeLanguage(langCode) {
+      currentLang = langCode;
+      localStorage.setItem('ecoclimate_lang', langCode);
+      renderApp();
+    }
+
+    function toggleUnit() {
+      currentUnit = currentUnit === 'C' ? 'F' : 'C';
+      renderApp();
+    }
+
+    function toggleTheme() {
+      const htmlEl = document.documentElement;
+      const themeIcon = document.getElementById('themeIcon');
+      if (htmlEl.classList.contains('dark')) {
+        htmlEl.classList.remove('dark');
+        themeIcon.className = "fa-solid fa-sun text-amber-500";
+      } else {
+        htmlEl.classList.add('dark');
+        themeIcon.className = "fa-solid fa-moon";
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Web Speech API / Voice Control Parsing
+    // -------------------------------------------------------------
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        console.warn("Speech Recognition API not supported in this browser environment.");
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+
+      recognition.onstart = () => {
+        isListening = true;
+        updateMicUI(true);
+        document.getElementById('voiceFeedbackContainer').classList.remove('hidden');
+        document.getElementById('voiceTranscript').innerText = i18n[currentLang].listeningMsg;
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map(result => result[0].transcript)
+          .join('');
+        
+        document.getElementById('voiceTranscript').innerText = `"${transcript}"`;
+
+        if (event.results[0].isFinal) {
+          parseVoiceCommand(transcript.toLowerCase());
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.error("Speech Recognition Error:", event.error);
+        stopVoiceControl();
+      };
+
+      recognition.onend = () => {
+        stopVoiceControl();
+      };
+    }
+
+    function toggleVoiceControl() {
+      if (!recognition) {
+        alert("Voice recognition is not supported on this browser. Try Chrome on Android or Safari on iOS.");
+        return;
+      }
+
+      if (isListening) {
+        recognition.stop();
+      } else {
+        // Set speech language dynamically based on current app language setting
+        const langMap = { en: 'en-US', es: 'es-ES', fr: 'fr-FR', hi: 'hi-IN' };
+        recognition.lang = langMap[currentLang] || 'en-US';
+        recognition.start();
+      }
+    }
+
+    function stopVoiceControl() {
+      isListening = false;
+      updateMicUI(false);
+      setTimeout(() => {
+        document.getElementById('voiceFeedbackContainer').classList.add('hidden');
+      }, 3000);
+    }
+
+    function updateMicUI(active) {
+      const micBtn = document.getElementById('micBtn');
+      const micIcon = document.getElementById('micIcon');
+      if (active) {
+        micBtn.className = "pointer-events-auto bg-red-500 hover:bg-red-600 text-white rounded-full p-4 shadow-xl shadow-red-500/40 animate-bounce transition-all duration-300";
+        micIcon.className = "fa-solid fa-microphone-slash text-2xl";
+      } else {
+        micBtn.className = "pointer-events-auto bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-xl shadow-green-500/30 flex items-center justify-center transition-all duration-300 transform active:scale-90";
+        micIcon.className = "fa-solid fa-microphone text-2xl";
+      }
+    }
+
+    function parseVoiceCommand(cmd) {
+      // 1. Language Commands
+      if (cmd.includes('spanish') || cmd.includes('español')) {
+        changeLanguage('es');
+        document.getElementById('langSelect').value = 'es';
+      } else if (cmd.includes('french') || cmd.includes('français')) {
+        changeLanguage('fr');
+        document.getElementById('langSelect').value = 'fr';
+      } else if (cmd.includes('hindi') || cmd.includes('हिंदी')) {
+        changeLanguage('hi');
+        document.getElementById('langSelect').value = 'hi';
+      } else if (cmd.includes('english')) {
+        changeLanguage('en');
+        document.getElementById('langSelect').value = 'en';
+      }
+
+      // 2. Navigation / Highlight Commands
+      if (cmd.includes('air quality') || cmd.includes('aqi') || cmd.includes('calidad del aire') || cmd.includes('qualité de l\'air') || cmd.includes('हवा')) {
+        highlightAndScroll('aqiSection');
+      } else if (cmd.includes('forecast') || cmd.includes('10 day') || cmd.includes('pronóstico') || cmd.includes('prévision') || cmd.includes('पूर्वाभ्यास')) {
+        highlightAndScroll('forecastSection');
+      }
+
+      // 3. Theme Command
+      if (cmd.includes('dark mode') || cmd.includes('light mode') || cmd.includes('modo oscuro') || cmd.includes('mode sombre')) {
+        toggleTheme();
+      }
+    }
+
+    function highlightAndScroll(elementId) {
+      const el = document.getElementById(elementId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('highlight-card');
+        setTimeout(() => {
+          el.classList.remove('highlight-card');
+        }, 3000);
+      }
+    }
+  </script>
+</body>
+</html>
